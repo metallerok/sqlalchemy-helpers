@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = 'sqlalchemy-helpers'
+version = "1.0.0"
+requires-python = '>=3.6'
+dependencies = [
+]
+
+[project.optional-dependencies]
+dev = ["SQLAlchemy~=1.4.27"]
