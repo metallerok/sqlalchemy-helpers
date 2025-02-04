@@ -96,7 +96,7 @@ class AsyncSAPagination(PaginationABC):
         return items
 
     async def _get_total(self, query) -> int:
-        query = query.with_only_columns([sa.func.count()]).order_by(None)
+        query = query.with_only_columns(sa.func.count()).order_by(None)
 
         result = await self._db_session.execute(query)
         total = result.scalar()
