@@ -1,7 +1,7 @@
 import abc
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from typing import List
+from typing import List, Sequence
 from math import ceil
 
 DEFAULT_PAGE_SIZE = 20
@@ -66,32 +66,37 @@ class AsyncSAPagination(PaginationABC):
         self._items = None
         self._total = None
 
-    async def create(self, query) -> 'AsyncSAPagination':
+    async def create(self, query, scalars: bool = True) -> 'AsyncSAPagination':
         self._total = await self._get_total(query)
 
         if self.page > self.total_pages:
             self.page = 1
 
-        self._items = await self._paginate(query)
+        self._items = await self._paginate(query, scalars)
 
         return self
 
     @property
     def total(self) -> int:
+        assert type(self._total) is int
         return self._total
 
     @property
-    def items(self) -> List:
+    def items(self) -> Sequence:
+        assert isinstance(self._items, Sequence)
         return self._items
 
-    async def _paginate(self, query):
+    async def _paginate(self, query, scalars: bool = True):
         query = query.limit(self.page_size).offset(
             (self.page - 1) * self.page_size
         )
 
         result = await self._db_session.execute(query)
 
-        items = result.scalars().unique().all()
+        if scalars:
+            items = result.scalars().unique().all()
+        else:
+            items = result.unique().all()
 
         return items
 
