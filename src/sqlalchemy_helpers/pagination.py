@@ -1,7 +1,7 @@
 import abc
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from typing import List, Sequence
+from typing import List, Sequence, Optional
 from math import ceil
 
 DEFAULT_PAGE_SIZE = 20
@@ -28,9 +28,16 @@ class PaginationABC(abc.ABC):
 
 
 class SAPagination(PaginationABC):
-    def __init__(self, query, page: int, page_size: int):
-        self._total = None
-        self._items = None
+    def __init__(
+        self,
+        query,
+        page: int,
+        page_size: int,
+        items: Optional[List] = None,
+        total: Optional[int] = None
+    ):
+        self._items = items
+        self._total = total
 
         self._query = query
         super().__init__(page, page_size)
@@ -60,11 +67,18 @@ class SAPagination(PaginationABC):
 
 
 class AsyncSAPagination(PaginationABC):
-    def __init__(self, db_session: AsyncSession, page: int, page_size: int):
+    def __init__(
+        self,
+        db_session: AsyncSession,
+        page: int,
+        page_size: int,
+        items: Optional[List] = None,
+        total: Optional[int] = None
+    ):
         super().__init__(page, page_size)
         self._db_session = db_session
-        self._items = None
-        self._total = None
+        self._items = items
+        self._total = total
 
     async def create(self, query, scalars: bool = True) -> 'AsyncSAPagination':
         self._total = await self._get_total(query)
