@@ -119,7 +119,7 @@ class AsyncSAPagination(PaginationABC):
 
         query = query.with_only_columns(
             sa.func.count(sa.distinct(main_model.id))
-        ).order_by(None)
+        ).order_by(None).group_by(None)
 
         result = await self._db_session.execute(query)
         total = result.scalar()
